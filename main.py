@@ -3,6 +3,7 @@ from twisted.internet import reactor, endpoints
 from twisted.enterprise import adbapi
 
 import json
+import os
 
 
 data_file_path = './data/habcat.sqlite'
@@ -75,5 +76,7 @@ class Habstar(resource.Resource):
         return server.NOT_DONE_YET
 
 
-endpoints.serverFromString(reactor, "tcp:5000").listen(server.Site(Habstar()))
+port = os.environ.get('PORT', 5000)
+
+endpoints.serverFromString(reactor, "tcp:" + port).listen(server.Site(Habstar()))
 reactor.run()
