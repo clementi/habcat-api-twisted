@@ -1,5 +1,6 @@
 from twisted.web import server, resource
 from twisted.internet import reactor, endpoints
+from twisted.enterprise import adbapi
 
 
 class Counter(resource.Resource):
