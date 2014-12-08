@@ -9,29 +9,32 @@ data_file_path = './data/habcat.sqlite'
 dbpool = adbapi.ConnectionPool('sqlite3', data_file_path, check_same_thread=False)
 
 
-class Counter(resource.Resource):
+class Habstar(resource.Resource):
     isLeaf = True
 
     def render_GET(self, request):
         def get_data():
-            return dbpool.runQuery('SELECT * FROM habstar LIMIT 3;')
+            return dbpool.runQuery('SELECT * FROM habstar LIMIT 1;')
 
         def on_result(data):
             result = []
             for row in data:
-                result.append({
-                    'hip': row[0],
-                    'loc': [
+                if request.args.get('c') == 'cel':
+                    loc = [
                         row[15],
                         [row[1], row[2], row[3]],
                         [row[4], row[5], row[6]]
-                    ],
+                    ]
+                else:
+                    loc = [row[16], row[17], row[18]]
+
+                result.append({
+                    'hip': row[0],
+                    'loc': loc,
                     'mag': row[7],
                     'dist': row[15],
-                    'parx': row[8],
-                    'sparx': row[9],
-                    'bmv': row[10],
-                    'sbmv': row[11],
+                    'parx': [row[8], row[9]],
+                    'bmv': [row[10], row[11]],
                     'ccdm': row[12],
                     'hd': row[13],
                     'bd': row[14]
@@ -46,5 +49,5 @@ class Counter(resource.Resource):
         return server.NOT_DONE_YET
 
 
-endpoints.serverFromString(reactor, "tcp:5000").listen(server.Site(Counter()))
+endpoints.serverFromString(reactor, "tcp:5000").listen(server.Site(Habstar()))
 reactor.run()
