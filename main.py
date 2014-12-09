@@ -76,7 +76,7 @@ class Habstar(resource.Resource):
         return server.NOT_DONE_YET
 
 
-port = os.environ.get('PORT', 80)
+port = os.environ.get('PORT', '80')
 
 endpoints.serverFromString(reactor, "tcp:" + port).listen(server.Site(Habstar()))
 reactor.run()
