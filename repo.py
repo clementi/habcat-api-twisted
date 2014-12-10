@@ -30,7 +30,7 @@ WHERE x_pc > ref_x - ? AND x_pc < ref_x + ?
             if dist < distance:
                 habstars.append({
                     'hip': row[0],
-                    'ref_dist': dist
+                    'ref_dist_pc': dist
                 })
         return habstars
 
