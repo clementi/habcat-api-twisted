@@ -15,14 +15,14 @@ class Habstar(resource.Resource):
     isLeaf = True
 
     def render_GET(self, request):
-        def get_data(data):
+        def write_data(data):
             request.setHeader('content-type', 'application/json')
             request.write(json.dumps(data))
             request.finish()
 
         repo = HabstarRepo(dbpool)
         d = repo.get_habstars_within_distance_to(6, 10)
-        d.addCallback(get_data)
+        d.addCallback(write_data)
 
         return server.NOT_DONE_YET
 
