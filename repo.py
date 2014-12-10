@@ -8,8 +8,29 @@ class HabstarRepo(object):
 
     def _build_habstar(self, data):
         row = data[0]
+        hip_num, ra_hours, ra_minutes, ra_seconds, dec_degrees, dec_minutes, dec_seconds, johnson_mag, parx_mas, \
+            sigma_parx_mas, bmv, sigma_bmv, ccdm, hd, bd, dist_pc, x_pc, y_pc, z_pc = row
+
         return {
-            'hip': row[0]
+            'hip': hip_num,
+            'loc_cel': {
+                'ra': [ra_hours, ra_minutes, ra_seconds],
+                'dec': [dec_degrees, dec_minutes, dec_seconds]
+            },
+            'loc_cart_pc': [x_pc, y_pc, z_pc],
+            'mag': johnson_mag,
+            'parx_mas': {
+                'v': parx_mas,
+                's': sigma_parx_mas
+            },
+            'bmv': {
+                'v': bmv,
+                's': sigma_bmv
+            },
+            'ccdm': ccdm,
+            'hd': hd,
+            'bd': bd,
+            'dist_pc': dist_pc
         }
 
     def get_habstars_within_distance_to(self, hip_num, distance):
@@ -26,10 +47,30 @@ WHERE x_pc > ref_x - ? AND x_pc < ref_x + ?
     def _build_habstars_by_distance(self, data, distance):
         habstars = []
         for row in data:
-            dist = self._distance(row[16], row[17], row[18], row[19], row[20], row[21])
+            hip_num, ra_hours, ra_minutes, ra_seconds, dec_degrees, dec_minutes, dec_seconds, johnson_mag, parx_mas, \
+                sigma_parx_mas, bmv, sigma_bmv, ccdm, hd, bd, dist_pc, x_pc, y_pc, z_pc, ref_x, ref_y, ref_z = row
+            dist = self._distance(x_pc, y_pc, z_pc, ref_x, ref_y, ref_z)
             if dist < distance:
                 habstars.append({
-                    'hip': row[0],
+                    'hip': hip_num,
+                    'loc_cel': {
+                        'ra': [ra_hours, ra_minutes, ra_seconds],
+                        'dec': [dec_degrees, dec_minutes, dec_seconds]
+                    },
+                    'loc_cart_pc': [x_pc, y_pc, z_pc],
+                    'mag': johnson_mag,
+                    'parx_mas': {
+                        'v': parx_mas,
+                        's': sigma_parx_mas
+                    },
+                    'bmv': {
+                        'v': bmv,
+                        's': sigma_bmv
+                    },
+                    'ccdm': ccdm,
+                    'hd': hd,
+                    'bd': bd,
+                    'dist_pc': dist_pc,
                     'ref_dist_pc': dist
                 })
         return habstars
