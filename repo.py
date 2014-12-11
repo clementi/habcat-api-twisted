@@ -112,3 +112,9 @@ WHERE x_pc > ref_x - ? AND x_pc < ref_x + ?
                 'dist_pc': dist_pc
             })
         return habstars
+
+    def get_habstars_with_similar_magnitude_to(self, mag):
+        upper_mag = mag * 1.05
+        lower_mag = mag * 0.95
+        mag_query = 'SELECT * FROM habstar WHERE johnson_mag < ? AND johnson_mag > ?'
+        return self._dbpool.runQuery(mag_query, (upper_mag, lower_mag)).addCallback(self._build_habstars)
