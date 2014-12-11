@@ -82,8 +82,8 @@ WHERE x_pc > ref_x - ? AND x_pc < ref_x + ?
         return math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2 + (z1 - z2) ** 2)
 
     def get_habstars_with_similar_color_to(self, color):
-        upper_color = color * 1.05
-        lower_color = color * 0.95
+        upper_color = float(color) * 1.05
+        lower_color = float(color) * 0.95
         color_query = 'SELECT * FROM habstar WHERE b_minus_v < ? AND b_minus_v > ?;'
         return self._dbpool.runQuery(color_query, (upper_color, lower_color)).addCallback(self._build_habstars)
 
@@ -116,8 +116,8 @@ WHERE x_pc > ref_x - ? AND x_pc < ref_x + ?
         return habstars
 
     def get_habstars_with_similar_magnitude_to(self, mag):
-        upper_mag = mag * 1.05
-        lower_mag = mag * 0.95
+        upper_mag = float(mag) * 1.05
+        lower_mag = float(mag) * 0.95
         mag_query = 'SELECT * FROM habstar WHERE johnson_mag < ? AND johnson_mag > ?;'
         return self._dbpool.runQuery(mag_query, (upper_mag, lower_mag)).addCallback(self._build_habstars)
 

@@ -33,7 +33,6 @@ class Habstar(resource.Resource):
 
         hip_num_match = re.match("/(\d+)", request.path)
         if hip_num_match:
-            # Get single habstar
             d = repo.get_habstar(hip_num_match.groups()[0])
         else:
             args = request.args
