@@ -7,31 +7,33 @@ class HabstarRepo(object):
         return self._dbpool.runQuery(query, (hip_num,)).addCallback(self._build_habstar)
 
     def _build_habstar(self, data):
-        row = data[0]
-        hip_num, ra_hours, ra_minutes, ra_seconds, dec_degrees, dec_minutes, dec_seconds, johnson_mag, parx_mas, \
-            sigma_parx_mas, bmv, sigma_bmv, ccdm, hd, bd, dist_pc, x_pc, y_pc, z_pc = row
+        if len(data):
+            row = data[0]
+            hip_num, ra_hours, ra_minutes, ra_seconds, dec_degrees, dec_minutes, dec_seconds, johnson_mag, parx_mas, \
+                sigma_parx_mas, bmv, sigma_bmv, ccdm, hd, bd, dist_pc, x_pc, y_pc, z_pc = row
 
-        return {
-            'hip': hip_num,
-            'loc_cel': {
-                'ra': [ra_hours, ra_minutes, ra_seconds],
-                'dec': [dec_degrees, dec_minutes, dec_seconds]
-            },
-            'loc_cart_pc': [x_pc, y_pc, z_pc],
-            'mag': johnson_mag,
-            'parx_mas': {
-                'v': parx_mas,
-                's': sigma_parx_mas
-            },
-            'bmv': {
-                'v': bmv,
-                's': sigma_bmv
-            },
-            'ccdm': ccdm,
-            'hd': hd,
-            'bd': bd,
-            'dist_pc': dist_pc
-        }
+            return {
+                'hip': hip_num,
+                'loc_cel': {
+                    'ra': [ra_hours, ra_minutes, ra_seconds],
+                    'dec': [dec_degrees, dec_minutes, dec_seconds]
+                },
+                'loc_cart_pc': [x_pc, y_pc, z_pc],
+                'mag': johnson_mag,
+                'parx_mas': {
+                    'v': parx_mas,
+                    's': sigma_parx_mas
+                },
+                'bmv': {
+                    'v': bmv,
+                    's': sigma_bmv
+                },
+                'ccdm': ccdm,
+                'hd': hd,
+                'bd': bd,
+                'dist_pc': dist_pc
+            }
+        return None
 
     def get_habstars_within_distance_to(self, hip_num, distance):
         distance_query = """SELECT * FROM habstar
@@ -82,7 +84,7 @@ WHERE x_pc > ref_x - ? AND x_pc < ref_x + ?
     def get_habstars_with_similar_color_to(self, color):
         upper_color = color * 1.05
         lower_color = color * 0.95
-        color_query = 'SELECT * FROM habstar WHERE b_minus_v < ? AND b_minus_v > ?'
+        color_query = 'SELECT * FROM habstar WHERE b_minus_v < ? AND b_minus_v > ?;'
         return self._dbpool.runQuery(color_query, (upper_color, lower_color)).addCallback(self._build_habstars)
 
     def _build_habstars(self, data):
@@ -116,5 +118,9 @@ WHERE x_pc > ref_x - ? AND x_pc < ref_x + ?
     def get_habstars_with_similar_magnitude_to(self, mag):
         upper_mag = mag * 1.05
         lower_mag = mag * 0.95
-        mag_query = 'SELECT * FROM habstar WHERE johnson_mag < ? AND johnson_mag > ?'
+        mag_query = 'SELECT * FROM habstar WHERE johnson_mag < ? AND johnson_mag > ?;'
         return self._dbpool.runQuery(mag_query, (upper_mag, lower_mag)).addCallback(self._build_habstars)
+
+    def get_habstars(self):
+        query = 'SELECT * FROM habstar;'
+        return self._dbpool.runQuery(query).addCallback(self._build_habstars)

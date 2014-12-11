@@ -1,9 +1,10 @@
 from twisted.web import server, resource
-from twisted.internet import reactor, endpoints
+from twisted.internet import reactor, endpoints, defer
 from twisted.enterprise import adbapi
 
 import json
 import os
+import re
 from repo import HabstarRepo
 
 
@@ -16,12 +17,38 @@ class Habstar(resource.Resource):
 
     def render_GET(self, request):
         def write_data(data):
-            request.setHeader('content-type', 'application/json')
-            request.write(json.dumps(data))
+            if data:
+                request.setHeader('content-type', 'application/json')
+                request.write(json.dumps(data))
+            else:
+                request.setResponseCode(404)
+                request.write(json.dumps({
+                    'error': 'Not found'
+                }))
             request.finish()
 
         repo = HabstarRepo(dbpool)
-        d = repo.get_habstars_within_distance_to(6, 10)
+
+        d = defer.Deferred()
+
+        hip_num_match = re.match("/(\d+)", request.path)
+        if hip_num_match:
+            # Get single habstar
+            d = repo.get_habstar(hip_num_match.groups()[0])
+        else:
+            args = request.args
+            action = (args.get('a') or ['browse'])[0]
+            if action == 'browse':
+                d = repo.get_habstars()
+            elif action == 'similar_mag':
+                mag = args.get('m')
+                if mag and len(mag) != 0:
+                    d = repo.get_habstars_with_similar_magnitude_to(mag[0])
+            elif action == 'similar_color':
+                color = args.get('c')
+                if color and len(color) != 0:
+                    d = repo.get_habstars_with_similar_color_to(color[0])
+
         d.addCallback(write_data)
 
         return server.NOT_DONE_YET
