@@ -34,7 +34,7 @@ class Habstar(resource.Resource):
         hip_num_match = re.match("^/(\d+)$", request.path)
         if hip_num_match:
             d = repo.get_habstar(hip_num_match.groups()[0])
-        else:
+        elif request.path == '/':
             args = request.args
             action = (args.get('a') or ['browse'])[0]
             if action == 'browse':
@@ -47,6 +47,8 @@ class Habstar(resource.Resource):
                 color = args.get('c')
                 if color and len(color) != 0:
                     d = repo.get_habstars_with_similar_color_to(color[0])
+        else:
+            d = repo.get_habstar(-1)
 
         d.addCallback(write_data)
 
