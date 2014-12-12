@@ -31,7 +31,7 @@ class Habstar(resource.Resource):
 
         d = defer.Deferred()
 
-        hip_num_match = re.match("/(\d+)", request.path)
+        hip_num_match = re.match("^/(\d+)$", request.path)
         if hip_num_match:
             d = repo.get_habstar(hip_num_match.groups()[0])
         else:
