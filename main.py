@@ -47,6 +47,10 @@ class Habstar(resource.Resource):
                 color = args.get('c')
                 if color and len(color) != 0:
                     d = repo.get_habstars_with_similar_color_to(color[0])
+            elif action == 'dist':
+                dist = float((args.get('d') or ['10'])[0])
+                ref_hip_num = args.get('r')[0]
+                d = repo.get_habstars_within_distance_to(ref_hip_num, dist)
         else:
             d = repo.get_habstar(-1)
 
