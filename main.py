@@ -38,7 +38,8 @@ class Habstar(resource.Resource):
             args = request.args
             action = (args.get('a') or ['browse'])[0]
             if action == 'browse':
-                d = repo.get_habstars()
+                page_num = int((args.get('p') or ['1'])[0])
+                d = repo.get_habstars(page_num)
             elif action == 'similar_mag':
                 mag = args.get('m')
                 if mag and len(mag) != 0:

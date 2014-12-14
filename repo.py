@@ -1,3 +1,5 @@
+PAGE_SIZE = 20
+
 class HabstarRepo(object):
     def __init__(self, dbpool):
         self._dbpool = dbpool
@@ -87,12 +89,17 @@ WHERE x_pc > ref_x - ? AND x_pc < ref_x + ?
         color_query = 'SELECT * FROM habstar WHERE b_minus_v < ? AND b_minus_v > ?;'
         return self._dbpool.runQuery(color_query, (upper_color, lower_color)).addCallback(self._build_habstars)
 
-    def _build_habstars(self, data):
-        habstars = []
+    def _build_habstars(self, data, page_num):
+        import math
+        habstars_page = {
+            'page': page_num,
+            'total_pages': math.ceil(data[0][0] / float(PAGE_SIZE)),
+            'results': []
+        }
         for row in data:
-            hip_num, ra_hours, ra_minutes, ra_seconds, dec_degrees, dec_minutes, dec_seconds, johnson_mag, parx_mas, \
-                sigma_parx_mas, bmv, sigma_bmv, ccdm, hd, bd, dist_pc, x_pc, y_pc, z_pc = row
-            habstars.append({
+            total_habstars, hip_num, ra_hours, ra_minutes, ra_seconds, dec_degrees, dec_minutes, dec_seconds, \
+                johnson_mag, parx_mas, sigma_parx_mas, bmv, sigma_bmv, ccdm, hd, bd, dist_pc, x_pc, y_pc, z_pc = row
+            habstars_page['results'].append({
                 'hip': hip_num,
                 'loc_cel': {
                     'ra': [ra_hours, ra_minutes, ra_seconds],
@@ -113,7 +120,7 @@ WHERE x_pc > ref_x - ? AND x_pc < ref_x + ?
                 'bd': bd,
                 'dist_pc': dist_pc
             })
-        return habstars
+        return habstars_page
 
     def get_habstars_with_similar_magnitude_to(self, mag):
         upper_mag = float(mag) * 1.05
@@ -121,6 +128,6 @@ WHERE x_pc > ref_x - ? AND x_pc < ref_x + ?
         mag_query = 'SELECT * FROM habstar WHERE johnson_mag < ? AND johnson_mag > ?;'
         return self._dbpool.runQuery(mag_query, (upper_mag, lower_mag)).addCallback(self._build_habstars)
 
-    def get_habstars(self):
-        query = 'SELECT * FROM habstar;'
-        return self._dbpool.runQuery(query).addCallback(self._build_habstars)
+    def get_habstars(self, page_num):
+        query = 'SELECT (SELECT COUNT() FROM habstar) AS total_habstars, * FROM habstar LIMIT 20 OFFSET ?;'
+        return self._dbpool.runQuery(query, (((page_num - 1) * PAGE_SIZE),)).addCallback(lambda data: self._build_habstars(data, page_num))
