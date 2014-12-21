@@ -42,16 +42,19 @@ class Habstar(resource.Resource):
                 d = repo.get_habstars(page_num)
             elif action == 'similar_mag':
                 mag = args.get('m')
+                page_num = int((args.get('p') or ['1'])[0])
                 if mag and len(mag) != 0:
-                    d = repo.get_habstars_with_similar_magnitude_to(mag[0])
+                    d = repo.get_habstars_with_similar_magnitude_to(mag[0], page_num)
             elif action == 'similar_color':
                 color = args.get('c')
+                page_num = int((args.get('p') or ['1'])[0])
                 if color and len(color) != 0:
-                    d = repo.get_habstars_with_similar_color_to(color[0])
+                    d = repo.get_habstars_with_similar_color_to(color[0], page_num)
             elif action == 'dist':
                 dist = float((args.get('d') or ['10'])[0])
                 ref_hip_num = args.get('r')[0]
-                d = repo.get_habstars_within_distance_to(ref_hip_num, dist)
+                page_num = int((args.get('p') or ['1'])[0])
+                d = repo.get_habstars_within_distance_to(ref_hip_num, dist, page_num)
         else:
             d = repo.get_habstar(-1)
 
