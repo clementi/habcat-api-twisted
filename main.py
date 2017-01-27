@@ -18,7 +18,8 @@ class Habstar(resource.Resource):
     def render_GET(self, request):
         def write_data(data):
             if data:
-                request.setHeader('content-type', 'application/json')
+                request.setHeader('Content-Type', 'application/json')
+                request.setHeader('Access-Control-Allow-Origin', '*')
                 request.write(json.dumps(data))
             else:
                 request.setResponseCode(404)
